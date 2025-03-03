@@ -2,8 +2,12 @@ package com.example.BoardTarefas.service;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
+import com.example.BoardTarefas.persistence.dao.BoardColumnDAO;
 import com.example.BoardTarefas.persistence.dao.BoardDAO;
+import com.example.BoardTarefas.persistence.entity.BoardColumnEntity;
+import com.example.BoardTarefas.persistence.entity.BoardEntity;
 
 import lombok.AllArgsConstructor;
 
@@ -11,6 +15,32 @@ import lombok.AllArgsConstructor;
 public class BoardService 
 {
     private final Connection connection;
+
+    public BoardEntity create(final BoardEntity board) throws SQLException
+    {
+        BoardDAO boardDAO = new BoardDAO(connection);
+        BoardColumnDAO boardColumnDAO = new BoardColumnDAO(connection);
+
+        try
+        {
+            boardDAO.create(board);
+            List<BoardColumnEntity> columns = board.getBoardColumns().stream().map(c -> { c.setBoard(board); return c; }).toList();
+
+            for(BoardColumnEntity column : columns)
+            {
+                boardColumnDAO.create(column);
+            }
+
+            connection.commit();
+        }
+        catch(SQLException sqlex)
+        {
+            connection.rollback();
+            throw sqlex;
+        }
+
+        return board;
+    }
 
     public boolean delete(final Long id) throws SQLException
     {
