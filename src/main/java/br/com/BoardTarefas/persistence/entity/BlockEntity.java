@@ -1,4 +1,4 @@
-package com.example.BoardTarefas.persistence.entity;
+package br.com.BoardTarefas.persistence.entity;
 
 import java.time.OffsetDateTime;
 

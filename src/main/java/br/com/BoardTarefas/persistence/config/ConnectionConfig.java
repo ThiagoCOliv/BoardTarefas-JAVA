@@ -1,4 +1,4 @@
-package com.example.BoardTarefas.persistence.config;
+package br.com.BoardTarefas.persistence.config;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

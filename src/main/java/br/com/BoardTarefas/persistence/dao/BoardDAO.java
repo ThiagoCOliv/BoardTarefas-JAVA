@@ -1,4 +1,4 @@
-package com.example.BoardTarefas.persistence.dao;
+package br.com.BoardTarefas.persistence.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,8 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.example.BoardTarefas.persistence.entity.BoardEntity;
+import com.mysql.cj.jdbc.StatementImpl;
 
+import br.com.BoardTarefas.persistence.entity.BoardEntity;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -26,12 +27,9 @@ public class BoardDAO
             stmt.setString(1, board.getName());
             stmt.executeUpdate();
 
-            try(ResultSet generatedKeys = stmt.getGeneratedKeys())
+            if(stmt instanceof StatementImpl impl)
             {
-                if(generatedKeys.next())
-                {
-                    board.setId(generatedKeys.getLong(1));
-                }
+                board.setId(impl.getLastInsertID());
             }
         }
 

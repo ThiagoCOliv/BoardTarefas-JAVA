@@ -1,4 +1,4 @@
-package com.example.BoardTarefas.persistence.migration;
+package br.com.BoardTarefas.persistence.migration;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -6,7 +6,7 @@ import java.io.PrintStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import static com.example.BoardTarefas.persistence.config.ConnectionConfig.getConnection;
+import static br.com.BoardTarefas.persistence.config.ConnectionConfig.getConnection;
 
 import liquibase.Liquibase;
 import liquibase.database.jvm.JdbcConnection;

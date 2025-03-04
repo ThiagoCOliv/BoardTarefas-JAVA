@@ -1,12 +1,12 @@
-package com.example.BoardTarefas.service;
+package br.com.BoardTarefas.service;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Optional;
 
-import com.example.BoardTarefas.persistence.dao.BoardColumnDAO;
-import com.example.BoardTarefas.persistence.dao.BoardDAO;
-import com.example.BoardTarefas.persistence.entity.BoardEntity;
+import br.com.BoardTarefas.persistence.dao.BoardColumnDAO;
+import br.com.BoardTarefas.persistence.dao.BoardDAO;
+import br.com.BoardTarefas.persistence.entity.BoardEntity;
 
 import lombok.AllArgsConstructor;
 

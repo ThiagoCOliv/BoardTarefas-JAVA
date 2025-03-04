@@ -1,4 +1,4 @@
-package com.example.BoardTarefas.persistence.dao;
+package br.com.BoardTarefas.persistence.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.example.BoardTarefas.persistence.entity.BoardColumnEntity;
-import static com.example.BoardTarefas.persistence.entity.BoardColumnKindEnum.fromName;
+import br.com.BoardTarefas.persistence.entity.BoardColumnEntity;
+import static br.com.BoardTarefas.persistence.entity.BoardColumnKindEnum.fromName;
 
 import lombok.AllArgsConstructor;
 

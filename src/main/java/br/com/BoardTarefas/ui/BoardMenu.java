@@ -1,6 +1,6 @@
-package com.example.BoardTarefas.ui;
+package br.com.BoardTarefas.ui;
 
-import com.example.BoardTarefas.persistence.entity.BoardEntity;
+import br.com.BoardTarefas.persistence.entity.BoardEntity;
 
 import lombok.AllArgsConstructor;
 

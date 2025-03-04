@@ -1,6 +1,5 @@
-package com.example.BoardTarefas.ui;
+package br.com.BoardTarefas.ui;
 
-import java.lang.classfile.ClassFile;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -8,12 +7,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
-import static com.example.BoardTarefas.persistence.config.ConnectionConfig.getConnection;
-import com.example.BoardTarefas.persistence.entity.BoardColumnEntity;
-import com.example.BoardTarefas.persistence.entity.BoardColumnKindEnum;
-import com.example.BoardTarefas.persistence.entity.BoardEntity;
-import com.example.BoardTarefas.service.BoardQueryService;
-import com.example.BoardTarefas.service.BoardService;
+import static br.com.BoardTarefas.persistence.config.ConnectionConfig.getConnection;
+import br.com.BoardTarefas.persistence.entity.BoardColumnEntity;
+import br.com.BoardTarefas.persistence.entity.BoardColumnKindEnum;
+import br.com.BoardTarefas.persistence.entity.BoardEntity;
+import br.com.BoardTarefas.service.BoardQueryService;
+import br.com.BoardTarefas.service.BoardService;
 
 public class MainMenu 
 {
@@ -77,7 +76,7 @@ public class MainMenu
 
         System.out.println("Informe o nome da coluna de cancelamento do board:");
         String cancelColumnName = scanner.next();
-        BoardColumnEntity cancelColumn = createColumn(cancelColumnName, BoardColumnKindEnum.CANCEL, addtionalColumns + 1);
+        BoardColumnEntity cancelColumn = createColumn(cancelColumnName, BoardColumnKindEnum.CANCEL, addtionalColumns + 2);
         columns.add(cancelColumn);
 
         board.setBoardColumns(columns);
