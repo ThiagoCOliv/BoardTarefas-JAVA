@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import br.com.BoardTarefas.dto.BoardColumnDTO;
 import br.com.BoardTarefas.persistence.entity.BoardColumnEntity;
 import static br.com.BoardTarefas.persistence.entity.BoardColumnKindEnum.fromName;
-
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -44,7 +44,7 @@ public class BoardColumnDAO
 
     public Optional<BoardColumnEntity> read(final Long id) throws SQLException 
     {
-        String sql = "SELECT * FROM boards_columns WHERE id = ?";
+        String sql = "SELECT id, name, `order`, kind FROM boards_columns WHERE id = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) 
         {
@@ -59,8 +59,7 @@ public class BoardColumnDAO
                     boardColumn.setId(rs.getLong("id"));
                     boardColumn.setName(rs.getString("name"));
                     boardColumn.setOrder(rs.getInt("order"));
-                    //boardColumn.setKind(BoardColumnEntity.Kind.valueOf(rs.getString("kind")));
-                    //boardColumn.setBoardId(rs.getLong("board_id"));
+                    boardColumn.setKind(fromName(rs.getString("kind")));
                     return Optional.of(boardColumn);
                 }
 
@@ -131,7 +130,7 @@ public class BoardColumnDAO
     public List<BoardColumnEntity> readByBoardId(Long boardId) throws SQLException
     {
         List<BoardColumnEntity> boardsColumns = new ArrayList<>();
-        String sql = "SELECT id, name, `order` FROM boards_columns WHERE board_id = ? ORDER BY `order`";
+        String sql = "SELECT id, name, `order`, kind FROM boards_columns WHERE board_id = ? ORDER BY `order`";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) 
         {
@@ -151,6 +150,39 @@ public class BoardColumnDAO
                 }
 
                 return boardsColumns;
+            }
+        }
+    }
+
+    public List<BoardColumnDTO> readByBoardIdWithDetails(Long boardId) throws SQLException
+    {
+        List<BoardColumnDTO> boardsColumnsDTOs = new ArrayList<>();
+        
+        String sql = """
+        SELECT bc.id, bc.name, bc.kind, COUNT(SELECT c.id FROM cards WHERE c.board_column_id = bc.id) cards_amount 
+        FROM boards_columns bc WHERE board_id = ? ORDER BY `order`
+        """;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) 
+        {
+            stmt.setLong(1, boardId);
+            stmt.executeQuery();
+            
+            try (ResultSet rs = stmt.getResultSet()) 
+            {
+                while (rs.next()) 
+                {
+                    BoardColumnDTO boardColumnDTO = new BoardColumnDTO(
+                        rs.getLong("bc.id"), 
+                        rs.getString("bc.name"), 
+                        fromName(rs.getString("bc.kind")), 
+                        rs.getInt("cards_amount")
+                    );
+                    
+                    boardsColumnsDTOs.add(boardColumnDTO);
+                }
+
+                return boardsColumnsDTOs;
             }
         }
     }
