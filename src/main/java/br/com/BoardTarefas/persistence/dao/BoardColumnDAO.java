@@ -6,11 +6,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import static java.util.Objects.isNull;
 import java.util.Optional;
 
 import br.com.BoardTarefas.dto.BoardColumnDTO;
 import br.com.BoardTarefas.persistence.entity.BoardColumnEntity;
 import static br.com.BoardTarefas.persistence.entity.BoardColumnKindEnum.fromName;
+import br.com.BoardTarefas.persistence.entity.CardEntity;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -159,7 +161,7 @@ public class BoardColumnDAO
         List<BoardColumnDTO> boardsColumnsDTOs = new ArrayList<>();
         
         String sql = """
-        SELECT bc.id, bc.name, bc.kind, COUNT(SELECT c.id FROM cards WHERE c.board_column_id = bc.id) cards_amount 
+        SELECT bc.id, bc.name, bc.kind, (SELECT COUNT(c.id) FROM cards WHERE c.board_column_id = bc.id) cards_amount 
         FROM boards_columns bc WHERE board_id = ? ORDER BY `order`
         """;
 
@@ -183,6 +185,45 @@ public class BoardColumnDAO
                 }
 
                 return boardsColumnsDTOs;
+            }
+        }
+    }
+
+    public Optional<BoardColumnEntity> readById(Long boardId) throws SQLException
+    {
+        String sql = """
+        SELECT bc.name, bc.kind, c.id, c.title, c.description FROM boards_columns bc 
+        LEFT JOIN cards c ON c.board_column_id = bc.id WHERE bc.id = ?
+        """;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) 
+        {
+            stmt.setLong(1, boardId);
+            stmt.executeQuery();
+            
+            try (ResultSet rs = stmt.getResultSet()) 
+            {
+                if (rs.next()) 
+                {
+                    BoardColumnEntity boardColumn = new BoardColumnEntity();
+                    boardColumn.setName(rs.getString("bc.name"));
+                    boardColumn.setKind(fromName(rs.getString("bc.kind")));
+
+                    do
+                    {
+                        if(isNull(rs.getString("c.title"))) break;
+
+                        CardEntity card = new CardEntity();
+                        card.setId(rs.getLong("c.id"));
+                        card.setTitle(rs.getString("c.title"));
+                        card.setDescription(rs.getString("c.description"));
+                        boardColumn.getCards().add(card);
+                    } while (rs.next());
+
+                    return Optional.of(boardColumn);
+                }
+
+                return Optional.empty();
             }
         }
     }
