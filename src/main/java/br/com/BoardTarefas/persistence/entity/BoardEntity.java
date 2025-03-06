@@ -2,7 +2,9 @@ package br.com.BoardTarefas.persistence.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
+import static br.com.BoardTarefas.persistence.entity.BoardColumnKindEnum.CANCEL;
 import static br.com.BoardTarefas.persistence.entity.BoardColumnKindEnum.INITIAL;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,6 +21,16 @@ public class BoardEntity {
 
     public BoardColumnEntity getInitialColumn()
     {
-        return boardColumns.stream().filter(bc -> bc.getKind().equals(INITIAL)).findFirst().orElseThrow();
+        return getFilteredColumn(bc -> bc.getKind().equals(INITIAL));
     }
+
+    public BoardColumnEntity getCancelColumn()
+    {
+        return getFilteredColumn(bc -> bc.getKind().equals(CANCEL));
+    }
+
+    private BoardColumnEntity getFilteredColumn(Predicate<BoardColumnEntity> filter)
+    {
+        return boardColumns.stream().filter(filter).findFirst().orElseThrow();
+    } 
 }

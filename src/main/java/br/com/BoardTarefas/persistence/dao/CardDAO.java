@@ -72,4 +72,16 @@ public class CardDAO
 
         return null;
     }
+
+    public void moveToColumn(final Long id, final Long columnId) throws SQLException
+    {
+        String sql = "UPDATE cards SET board_column_id = ? WHERE id = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) 
+        {
+            stmt.setLong(1, columnId);
+            stmt.setLong(2, id);
+            stmt.executeUpdate();
+        }
+    }
 }

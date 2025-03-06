@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
+import br.com.BoardTarefas.dto.BoardColumnInfoDTO;
 import br.com.BoardTarefas.dto.BoardDetailsDTO;
 import static br.com.BoardTarefas.persistence.config.ConnectionConfig.getConnection;
 import br.com.BoardTarefas.persistence.entity.BoardColumnEntity;
@@ -84,9 +85,20 @@ public class BoardMenu
         }
     }
 
-    private void moveCardToNextColumn() 
+    private void moveCardToNextColumn() throws SQLException
     {
-        // Implementation for moving a card to the next column
+        System.err.println("Informe o id do card que deseja mover para a próxima coluna:");
+        Long cardId = scanner.nextLong();
+        List<BoardColumnInfoDTO> boardColumnInfoDTOs = board.getBoardColumns().stream().map(bc -> new BoardColumnInfoDTO(bc.getId(), bc.getOrder(), bc.getKind())).toList();
+
+        try(Connection connection = getConnection())
+        {
+            new CardService(connection).moveCardToNextColumn(cardId, boardColumnInfoDTOs);
+        }
+        catch(RuntimeException rtex)
+        {
+            System.err.println(rtex.getMessage());
+        }
     }
 
     private void blockCard() 
@@ -99,9 +111,17 @@ public class BoardMenu
         // Implementation for unblocking a card
     }
 
-    private void cancelCard() 
+    private void cancelCard() throws SQLException
     {
-        // Implementation for canceling a card
+        System.err.println("Informe o id do card que deseja cancelar:");
+        Long cardId = scanner.nextLong();
+        BoardColumnEntity cancelColumn = board.getCancelColumn();
+        List<BoardColumnInfoDTO> boardColumnInfoDTOs = board.getBoardColumns().stream().map(bc -> new BoardColumnInfoDTO(bc.getId(), bc.getOrder(), bc.getKind())).toList();
+
+        try(Connection connection = getConnection())
+        {
+            new CardService(connection).cancelCard(cardId, cancelColumn.getId(), boardColumnInfoDTOs);
+        }
     }
 
     private void showBoard() throws SQLException

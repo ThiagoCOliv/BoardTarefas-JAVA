@@ -22,7 +22,7 @@ public class MainMenu
     {
         System.out.println("Bem-vindo ao Board Tarefas, o que deseja fazer?");
 
-        var option = -1;
+        int option;
 
         while(true)
         {
