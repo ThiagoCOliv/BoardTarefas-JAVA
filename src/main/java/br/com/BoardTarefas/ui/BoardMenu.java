@@ -30,9 +30,9 @@ public class BoardMenu
         {
             System.out.printf("Bem vindo ao board %s, selecione a operação deseada:\n", board.getId());
 
-            var option = -1;
+            int option;
 
-            while(option != 9)
+            do
             {
                 System.out.println("1 - Criar novo card");
                 System.out.println("2 - Mover card");
@@ -61,7 +61,7 @@ public class BoardMenu
                     case 10 -> System.exit(0);
                     default -> System.out.println("Opção inválida");
                 }
-            }   
+            } while(option != 9); 
         }
         catch(SQLException sqlex)
         {
@@ -83,6 +83,10 @@ public class BoardMenu
         {
             new CardService(connection).create(card);
         }
+        catch(RuntimeException rtex)
+        {
+            System.err.println(rtex.getMessage());
+        }
     }
 
     private void moveCardToNextColumn() throws SQLException
@@ -101,14 +105,39 @@ public class BoardMenu
         }
     }
 
-    private void blockCard() 
+    private void blockCard() throws SQLException 
     {
-        // Implementation for blocking a card
+        System.err.println("Informe o id do card que deseja bloquear:");
+        Long cardId = scanner.nextLong();
+        System.out.println("Informe o motivo do bloqueio do card:");
+        String reason = scanner.next();
+        List<BoardColumnInfoDTO> boardColumnInfoDTOs = board.getBoardColumns().stream().map(bc -> new BoardColumnInfoDTO(bc.getId(), bc.getOrder(), bc.getKind())).toList();
+
+        try(Connection connection = getConnection())
+        {
+            new CardService(connection).block(cardId, reason, boardColumnInfoDTOs);
+        }
+        catch(RuntimeException rtex)
+        {
+            System.err.println(rtex.getMessage());
+        }
     }
 
-    private void unblockCard() 
+    private void unblockCard() throws SQLException
     {
-        // Implementation for unblocking a card
+        System.err.println("Informe o id do card que deseja desbloquear:");
+        Long cardId = scanner.nextLong();
+        System.out.println("Informe o motivo do desbloqueio do card:");
+        String reason = scanner.next();
+
+        try(Connection connection = getConnection())
+        {
+            new CardService(connection).unblock(cardId, reason);
+        }
+        catch(RuntimeException rtex)
+        {
+            System.err.println(rtex.getMessage());
+        }
     }
 
     private void cancelCard() throws SQLException
@@ -121,6 +150,10 @@ public class BoardMenu
         try(Connection connection = getConnection())
         {
             new CardService(connection).cancelCard(cardId, cancelColumn.getId(), boardColumnInfoDTOs);
+        }
+        catch(RuntimeException rtex)
+        {
+            System.err.println(rtex.getMessage());
         }
     }
 
@@ -158,6 +191,10 @@ public class BoardMenu
                 co.getCards().forEach(ca -> System.out.printf("Card %s - %s\nDescrição: %s", ca.getId(), ca.getTitle(), ca.getDescription()));
             });
         }
+        catch(RuntimeException rtex)
+        {
+            System.err.println(rtex.getMessage());
+        }
     }
 
     private void showCard() throws SQLException
@@ -173,6 +210,10 @@ public class BoardMenu
                 System.out.printf("Card já foi bloqueado %s vezes\nEstá na coluna %s - %s\n", c.blocksAmount(), c.columnId(), c.columnName());
             }, 
             () -> System.out.println("Card não encontrado"));
+        }
+        catch(RuntimeException rtex)
+        {
+            System.err.println(rtex.getMessage());
         }
     }
 }

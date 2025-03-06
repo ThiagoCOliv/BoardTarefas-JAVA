@@ -15,8 +15,6 @@ public class BoardColumnQueryService
 
     public Optional<BoardColumnEntity> read(final Long id) throws SQLException 
     {
-        BoardColumnDAO boardColumnDAO = new BoardColumnDAO(connection);
-
-        return boardColumnDAO.read(id);
+        return new BoardColumnDAO(connection).read(id);
     }
 }

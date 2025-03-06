@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.mysql.cj.jdbc.StatementImpl;
-
 import br.com.BoardTarefas.persistence.entity.BoardEntity;
 import lombok.AllArgsConstructor;
 
@@ -27,9 +25,12 @@ public class BoardDAO
             stmt.setString(1, board.getName());
             stmt.executeUpdate();
 
-            if(stmt instanceof StatementImpl impl)
+            try(ResultSet generatedKeys = stmt.getGeneratedKeys())
             {
-                board.setId(impl.getLastInsertID());
+                if(generatedKeys.next())
+                {
+                    board.setId(generatedKeys.getLong(1));
+                }
             }
         }
 

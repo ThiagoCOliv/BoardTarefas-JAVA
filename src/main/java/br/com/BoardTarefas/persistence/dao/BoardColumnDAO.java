@@ -73,7 +73,7 @@ public class BoardColumnDAO
     public List<BoardColumnEntity> readAll() throws SQLException 
     {
         List<BoardColumnEntity> boardsColumns = new ArrayList<>();
-        String sql = "SELECT * FROM boards_columns";
+        String sql = "SELECT id, name, `order`, kind FROM boards_columns";
         
         try (PreparedStatement stmt = connection.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) 
         {
@@ -83,8 +83,7 @@ public class BoardColumnDAO
                 boardColumnEntity.setId(rs.getLong("id"));
                 boardColumnEntity.setName(rs.getString("name"));
                 boardColumnEntity.setOrder(rs.getInt("order"));
-                //boardColumnEntity.setKind(BoardColumnEntity.Kind.valueOf(rs.getString("kind")));
-                //boardColumnEntity.setBoardId(rs.getLong("board_id"));
+                boardColumnEntity.setKind(fromName(rs.getString("kind")));
                 boardsColumns.add(boardColumnEntity);
             }
         }
@@ -101,7 +100,7 @@ public class BoardColumnDAO
             stmt.setString(1, boardColumn.getName());
             stmt.setInt(2, boardColumn.getOrder());
             stmt.setString(3, boardColumn.getKind().name());
-            //stmt.setLong(4, boardColumn.getBoardId());
+            stmt.setLong(4, boardColumn.getBoard().getId());
             stmt.setLong(5, boardColumn.getId());
             stmt.executeUpdate();
         }

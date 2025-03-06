@@ -1,0 +1,1 @@
+ALTER TABLE blocks MODIFY COLUMN unblock_reason VARCHAR(255) NULL

@@ -10,7 +10,9 @@ import br.com.BoardTarefas.dto.CardDetailsDTO;
 import br.com.BoardTarefas.exception.CardBlockedException;
 import br.com.BoardTarefas.exception.CardFinishedException;
 import br.com.BoardTarefas.exception.EntityNotFoundException;
+import br.com.BoardTarefas.persistence.dao.BlockDAO;
 import br.com.BoardTarefas.persistence.dao.CardDAO;
+import static br.com.BoardTarefas.persistence.entity.BoardColumnKindEnum.CANCEL;
 import static br.com.BoardTarefas.persistence.entity.BoardColumnKindEnum.FINAL;
 import br.com.BoardTarefas.persistence.entity.CardEntity;
 import lombok.AllArgsConstructor;
@@ -91,16 +93,48 @@ public class CardService
         } 
     }
 
-    /*private void canBeMoved(final CardDetailsDTO cardDetailsDTO, List<BoardColumnInfoDTO> boardColumnInfoDTOs)
+    public void block(final Long cardId, final String reason, List<BoardColumnInfoDTO> boardColumnInfoDTOs) throws SQLException
     {
-        if(cardDetailsDTO.blocked()) throw new CardBlockedException("O card %s está bloqueado! Para move-lo primeiro o desbloqueie".formatted(cardDetailsDTO.id()));
+        try {
+            CardDAO cardDAO = new CardDAO(connection);
+            BlockDAO blockDAO = new BlockDAO(connection);
+            Optional<CardDetailsDTO> optional = cardDAO.read(cardId);
+            CardDetailsDTO cardDetailsDTO = optional.orElseThrow(() -> new EntityNotFoundException("O card com id %s não foi encontrado.".formatted(cardId)));
 
-        BoardColumnInfoDTO currentColumnInfo = boardColumnInfoDTOs.stream().filter(bc -> bc.id().equals(cardDetailsDTO.columnId()))
-            .findFirst().orElseThrow(() -> new IllegalStateException("O card informado pertence a outro board."));
-        
-        if(currentColumnInfo.kind().equals(FINAL)) throw new CardFinishedException("O card já foi finalizado!");
+            if(cardDetailsDTO.blocked()) throw new CardBlockedException("O card %s já está bloqueado!".formatted(cardId));
 
-        BoardColumnInfoDTO nextColumn = boardColumnInfoDTOs.stream().filter(bc -> bc.order() == currentColumnInfo.order() + 1)
-            .findFirst().orElseThrow(() -> new IllegalStateException("O card informado está cancelado."));
-    }*/
+            BoardColumnInfoDTO currentColumnInfo = boardColumnInfoDTOs.stream().filter(bc -> bc.id().equals(cardDetailsDTO.id())).findFirst().orElseThrow();
+
+            if(currentColumnInfo.kind().equals(FINAL) || currentColumnInfo.kind().equals(CANCEL)) 
+                throw new IllegalStateException("O card está em uma coluna do tipo %s e não pode ser bloqueado!".formatted(currentColumnInfo.kind()));
+
+            blockDAO.block(cardId, reason);
+            connection.commit();
+        } 
+        catch (SQLException sqlex) 
+        {
+            connection.rollback();
+            throw sqlex;
+        }
+    }
+
+    public void unblock(final Long cardId, final String reason) throws SQLException
+    {
+        try {
+            CardDAO cardDAO = new CardDAO(connection);
+            BlockDAO blockDAO = new BlockDAO(connection);
+            Optional<CardDetailsDTO> optional = cardDAO.read(cardId);
+            CardDetailsDTO cardDetailsDTO = optional.orElseThrow(() -> new EntityNotFoundException("O card com id %s não foi encontrado.".formatted(cardId)));
+
+            if(!cardDetailsDTO.blocked()) throw new CardBlockedException("O card %s não está bloqueado!".formatted(cardId));
+
+            blockDAO.unblock(cardId, reason);
+            connection.commit();
+        } 
+        catch (SQLException sqlex) 
+        {
+            connection.rollback();
+            throw sqlex;
+        }
+    }
 }

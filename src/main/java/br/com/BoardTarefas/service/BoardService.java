@@ -8,7 +8,6 @@ import br.com.BoardTarefas.persistence.dao.BoardColumnDAO;
 import br.com.BoardTarefas.persistence.dao.BoardDAO;
 import br.com.BoardTarefas.persistence.entity.BoardColumnEntity;
 import br.com.BoardTarefas.persistence.entity.BoardEntity;
-
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -18,17 +17,14 @@ public class BoardService
 
     public BoardEntity create(final BoardEntity board) throws SQLException
     {
-        BoardDAO boardDAO = new BoardDAO(connection);
-        BoardColumnDAO boardColumnDAO = new BoardColumnDAO(connection);
-
         try
         {
-            boardDAO.create(board);
+            new BoardDAO(connection).create(board);
             List<BoardColumnEntity> columns = board.getBoardColumns().stream().map(c -> { c.setBoard(board); return c; }).toList();
 
             for(BoardColumnEntity column : columns)
             {
-                boardColumnDAO.create(column);
+                new BoardColumnDAO(connection).create(column);
             }
 
             connection.commit();

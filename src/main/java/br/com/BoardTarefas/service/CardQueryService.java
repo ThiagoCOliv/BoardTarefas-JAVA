@@ -15,8 +15,6 @@ public class CardQueryService
 
     public Optional<CardDetailsDTO> read(final Long id) throws SQLException 
     {
-        CardDAO cardDAO = new CardDAO(connection);
-
-        return cardDAO.read(id);
+        return new CardDAO(connection).read(id);
     }
 }

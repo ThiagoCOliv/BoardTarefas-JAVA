@@ -24,7 +24,7 @@ public class MainMenu
 
         int option;
 
-        while(true)
+        do
         {
             System.out.println("1 - Criar novo board");
             System.out.println("2 - Selecionar board");
@@ -41,7 +41,7 @@ public class MainMenu
                 case 4 -> System.exit(0);
                 default -> System.out.println("Opção inválida");
             }
-        }
+        } while(true);
     }
 
     private void createBoard() throws SQLException
@@ -58,6 +58,7 @@ public class MainMenu
 
         System.out.println("Informe o nome da coluna inicial do board:");
         String initialColumnName = scanner.next();
+
         BoardColumnEntity initialColumn = createColumn(initialColumnName, BoardColumnKindEnum.INITIAL, 0);
         columns.add(initialColumn);
 
@@ -65,26 +66,22 @@ public class MainMenu
         {
             System.out.println("Informe o nome da coluna de tarefa pendente do board:");
             String pendingColumnName = scanner.next();
-            BoardColumnEntity pendingColumn = createColumn(pendingColumnName, BoardColumnKindEnum.IN_PROGRESS, i);
-            columns.add(pendingColumn);
+            columns.add(createColumn(pendingColumnName, BoardColumnKindEnum.IN_PROGRESS, i));
         }
 
         System.out.println("Informe o nome da coluna final do board:");
         String finalColumnName = scanner.next();
-        BoardColumnEntity finalColumn = createColumn(finalColumnName, BoardColumnKindEnum.FINAL, addtionalColumns + 1);
-        columns.add(finalColumn);
+        columns.add(createColumn(finalColumnName, BoardColumnKindEnum.FINAL, addtionalColumns + 1));
 
         System.out.println("Informe o nome da coluna de cancelamento do board:");
         String cancelColumnName = scanner.next();
-        BoardColumnEntity cancelColumn = createColumn(cancelColumnName, BoardColumnKindEnum.CANCEL, addtionalColumns + 2);
-        columns.add(cancelColumn);
+        columns.add(createColumn(cancelColumnName, BoardColumnKindEnum.CANCEL, addtionalColumns + 2));
 
         board.setBoardColumns(columns);
 
         try(Connection connection = getConnection())
         {
-            BoardService boardService = new BoardService(connection);
-            boardService.create(board);
+            new BoardService(connection).create(board);
         }
     }
 
@@ -95,13 +92,8 @@ public class MainMenu
 
         try(Connection connection = getConnection())
         {
-            BoardQueryService boardQueryService = new BoardQueryService(connection);
-            Optional<BoardEntity> optional = boardQueryService.read(id);
-
-            optional.ifPresentOrElse(
-                board -> new BoardMenu(board).execute(), 
-                () -> System.out.printf("Board com id %s não encontrado!\n", id)
-            );
+            Optional<BoardEntity> optional = new BoardQueryService(connection).read(id);
+            optional.ifPresentOrElse(board -> new BoardMenu(board).execute(), () -> System.out.printf("Board com id %s não encontrado!\n", id));
         }
     }
 
@@ -112,15 +104,8 @@ public class MainMenu
 
         try(Connection connection = getConnection())
         {
-            BoardService boardService = new BoardService(connection);
-            if(boardService.delete(id))
-            {
-                System.out.printf("O Board %s excluído com sucesso!\n", id);
-            }
-            else
-            {
-                System.out.printf("Board com id %s não encontrado!\n", id);
-            }
+            String mensagem = new BoardService(connection).delete(id) ? "O Board %s excluído com sucesso!\n" : "Board com id %s não encontrado!\n";
+            System.out.printf(mensagem, id);
         }
     }
 
